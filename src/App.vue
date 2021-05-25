@@ -1,28 +1,63 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <canvas
+      ref="can"
+      width="800"
+      height="600"
+      style="border: solid 1px black"
+    ></canvas>
+    <template v-if="canvas">
+      <button
+        @click="
+          drawingType = null
+          canvas.isDrawingMode = false
+        "
+      >
+        Sélection
+      </button>
+      <button @click="drawingType = 'rectangle'">Rectangle</button>
+      <button @click="canvas.isDrawingMode = !canvas.isDrawingMode">
+        Dessin libre
+      </button>
+      <button @click="canvas.remove(canvas.getActiveObject())">
+        Supprimer
+      </button>
+      <pre>{{ canvas }}</pre>
+    </template>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { fabric } from 'fabric'
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
+  data() {
+    return {
+      canvas: null,
+      drawingType: null,
+    }
+  },
+  mounted() {
+    const ref = this.$refs.can
+    this.canvas = new fabric.Canvas(ref, { isDrawingMode: false })
+    this.canvas.on('mouse:down', (event) => {
+      if (this.drawingType === 'rectangle') {
+        const pointer = event.pointer
+        const rect = new fabric.Rect({
+          left: pointer.x,
+          top: pointer.y,
+          originX: 'left',
+          originY: 'top',
+          width: 20,
+          height: 20,
+          angle: 0,
+          fill: 'rgba(255,0,0,0.5)',
+          transparentCorners: false,
+        })
+        this.canvas.add(rect)
+      }
+    })
+  },
+  methods: {},
 }
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
